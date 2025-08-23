@@ -1,0 +1,120 @@
+import React from "react"; import { motion } from "framer-motion"; import { Droplets, UserPlus, Search, HeartPulse, ShieldCheck } from "lucide-react";
+
+// UI Tile component function Tile({ title, description, Icon, onClick }) { return ( <motion.button onClick={onClick} whileHover={{ y: -4, scale: 1.01 }} whileTap={{ scale: 0.99 }} className="group relative w-full rounded-2xl bg-red-600 p-5 text-right text-white shadow-lg outline-none ring-0 transition focus:ring-2 focus:ring-red-500/40" > <div className="absolute left-4 top-4 opacity-40 group-hover:opacity-60"> <Icon className="h-8 w-8" aria-hidden="true" /> </div> <h3 className="mb-1 text-lg font-bold">{title}</h3> <p className="text-sm/6 opacity-90">{description}</p> </motion.button> ); }
+
+export default function ElectronicBloodBankUI() { const [view, setView] = React.useState(null); // 'add' | 'search' | 'benefits' | 'rules'
+
+return ( <main dir="rtl" className="min-h-screen bg-white text-gray-900"> {/* Header */} <header className="sticky top-0 z-10 border-b border-neutral-200/70 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60"> <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-5"> <div className="flex items-center gap-3"> <div className="grid h-12 w-12 place-items-center rounded-2xl bg-red-50"> <Droplets className="h-7 w-7 text-red-600" aria-hidden="true" /> </div> <div className="text-right"> <h1 className="text-2xl font-extrabold tracking-tight">بنك الدم الإلكتروني</h1> <p className="text-xs text-neutral-500">Electronic Blood Bank</p> </div> </div> </div> </header>
+
+{/* Hero / Intro */}
+  <section className="mx-auto max-w-6xl px-4 pt-8">
+    <div className="rounded-2xl border border-neutral-200/70 bg-neutral-50 p-5">
+      <p className="text-sm text-neutral-700">
+        اختر إحدى الخانات التالية لبدء الاستخدام. سنضيف النماذج والربط بقاعدة البيانات في الخطوات القادمة.
+      </p>
+    </div>
+  </section>
+
+  {/* Tiles */}
+  <section className="mx-auto max-w-6xl px-4 py-8">
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <Tile
+        title="إضافة بيانات متبرع"
+        description="سجّل معلومات المتبرع لإتاحتها للبحث."
+        Icon={UserPlus}
+        onClick={() => setView("add")}
+      />
+      <Tile
+        title="البحث عن متبرع"
+        description="استعرض جميع المتبرعين مع أدوات فرز وفلترة."
+        Icon={Search}
+        onClick={() => setView("search")}
+      />
+      <Tile
+        title="فوائد التبرع بالدم"
+        description="تعرف على أهم الفوائد الصحية والمجتمعية."
+        Icon={HeartPulse}
+        onClick={() => setView("benefits")}
+      />
+      <Tile
+        title="شروط وأهلية التبرع"
+        description="المتطلبات العامة قبل إتمام عملية التبرع."
+        Icon={ShieldCheck}
+        onClick={() => setView("rules")}
+      />
+    </div>
+  </section>
+
+  {/* Dynamic Panel */}
+  <section className="mx-auto max-w-6xl px-4 pb-16">
+    <motion.div
+      key={view}
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="rounded-2xl border border-neutral-200/70 bg-white p-6 shadow-sm"
+    >
+      {!view && (
+        <p className="text-sm text-neutral-600">لا توجد خانة محددة بعد. اضغط على إحدى الخانات أعلاه للمتابعة.</p>
+      )}
+
+      {view === "add" && (
+        <div className="space-y-3">
+          <h2 className="text-xl font-bold">إضافة بيانات متبرع</h2>
+          <p className="text-sm text-neutral-600">
+            في الخطوة التالية سنبني نموذج الإدخال الكامل مع التحقق من الحقول وربطه بقاعدة البيانات.
+          </p>
+          <ul className="list-disc pr-5 text-sm text-neutral-700">
+            <li>الاسم، العمر، السكن، رقم التلفون</li>
+            <li>الأمراض المزمنة</li>
+            <li>فصيلة الدم وHb (الهيموغلوبين) — سنوضح صيغة الإدخال</li>
+            <li>تاريخ آخر تبرع (إن وجد)</li>
+          </ul>
+        </div>
+      )}
+
+      {view === "search" && (
+        <div className="space-y-3">
+          <h2 className="text-xl font-bold">البحث عن متبرع</h2>
+          <p className="text-sm text-neutral-600">سنضيف لاحقًا عرضًا للبيانات مع شريط بحث وفلترة حسب الفصيلة، السكن، والعمر.</p>
+        </div>
+      )}
+
+      {view === "benefits" && (
+        <div className="space-y-3">
+          <h2 className="text-xl font-bold">فوائد التبرع بالدم</h2>
+          <ul className="list-disc pr-5 text-sm text-neutral-800 space-y-1">
+            <li>الإسهام المباشر في إنقاذ حياة المرضى والمصابين.</li>
+            <li>تنشيط الدورة الدموية وتحفيز نخاع العظم لإنتاج خلايا دم جديدة.</li>
+            <li>قد يساعد على تقليل مخاطر بعض أمراض القلب عبر خفض تخزين الحديد لدى بعض الأشخاص.</li>
+            <li>فحص صحي روتيني قبل التبرع (ضغط، نبض، مستوى الهيموغلوبين، وفحوصات فيروسية). </li>
+            <li>إحساس عالٍ بالمسؤولية المجتمعية والعمل الإنساني.</li>
+          </ul>
+          <p className="text-xs text-neutral-500">هذه معلومات عامة إرشادية وليست بديلاً عن استشارة الجهات الصحية المختصة.</p>
+        </div>
+      )}
+
+      {view === "rules" && (
+        <div className="space-y-3">
+          <h2 className="text-xl font-bold">شروط وأهلية التبرع</h2>
+          <ul className="list-disc pr-5 text-sm text-neutral-800 space-y-1">
+            <li>العمر غالبًا بين 18–60 سنة.</li>
+            <li>الوزن لا يقل عن 50 كجم.</li>
+            <li>سلامة عامة وعدم وجود أمراض معدية نشطة (مثل التهاب الكبد الفيروسي والإيدز وغيرها).</li>
+            <li>ضغط الدم والنبض في النطاق الطبيعي يوم التبرع.</li>
+            <li>مرور فترة كافية منذ آخر تبرع (نوصي بـ 3 أشهر للتبرع بالدم الكامل).</li>
+            <li>عدم تناول أدوية أو الخضوع لإجراءات طبية تمنع التبرع مؤقتًا.</li>
+          </ul>
+          <p className="text-xs text-neutral-500">قد تختلف الشروط حسب السياسات المحلية. يُرجى الالتزام بتوجيهات مراكز الدم في بلدك.</p>
+        </div>
+      )}
+    </motion.div>
+  </section>
+
+  {/* Signature (bottom-right) */}
+  <div className="pointer-events-none fixed bottom-3 right-4 select-none text-[11px] tracking-widest text-neutral-500">
+    H. H. I. M
+  </div>
+</main>
+
+); }
+
