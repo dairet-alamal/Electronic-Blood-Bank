@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>بنك الدم الإلكتروني | Electronic Blood Bank</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="header">
+      <div class="container header__inner">
+        <div class="logo">
+          <!-- قطرة دم -->
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 2c3.5 4.8 7 8.6 7 12.3A7 7 0 1 1 5 14.3C5 10.6 8.5 6.8 12 2z"></path>
+          </svg>
+        </div>
+        <div class="titles">
+          <h1>بنك الدم الإلكتروني</h1>
+          <p>Electronic Blood Bank</p>
+        </div>
+      </div>
+    </header>
+
+    <main class="container">
+      <section class="card intro">
+        اختر إحدى الخانات التالية. سنضيف الربط بقاعدة البيانات في خطوة لاحقة.
+      </section>
+
+      <section class="tiles">
+        <button class="tile" data-view="add">إضافة بيانات متبرع</button>
+        <button class="tile" data-view="search">البحث عن متبرع</button>
+        <button class="tile" data-view="benefits">فوائد التبرع بالدم</button>
+        <button class="tile" data-view="rules">شروط وأهلية التبرع</button>
+      </section>
+
+      <section id="panel" class="card panel">
+        لا توجد خانة محددة بعد. اضغط على إحدى الخانات الحمراء أعلاه للمتابعة.
+      </section>
+    </main>
+
+    <div class="sig">H. H. I. M</div>
+    <script src="main.js"></script>
+  </body>
+</html>
