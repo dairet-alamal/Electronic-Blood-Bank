@@ -1,132 +1,82 @@
-// --- ربط Firebase ---
-// (استعمل نفس بيانات التهيئة بتاعة مشروعك "amal-recovery")
+// استيراد مكتبات Firebase
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+import { getDatabase, ref, push, set, onValue } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
 
+// إعدادات مشروعك في Firebase
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
+  apiKey: "AIzaSyANAmBZ2ySOP6hcVMZ2zfu8PsnXnHqZbOA",
   authDomain: "amal-recovery.firebaseapp.com",
   databaseURL: "https://amal-recovery-default-rtdb.firebaseio.com",
   projectId: "amal-recovery",
   storageBucket: "amal-recovery.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  messagingSenderId: "1082715046722",
+  appId: "1:1082715046722:web:d1a116cc70f2276f513edb",
+  measurementId: "G-Z5D7GQ860S"
 };
 
-// تهيئة Firebase
-firebase.initializeApp(firebaseConfig);
-const database = firebase.database();
+// تشغيل Firebase
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
 
-// --- دوال المنصة ---
+// 📌 حفظ بيانات المتبرع في قاعدة البيانات
+document.getElementById("donorForm").addEventListener("submit", function(e) {
+  e.preventDefault();
 
-function openSection(section) {
-  const content = document.getElementById("content");
+  // نجمع البيانات من الفورم
+  const name = document.getElementById("name").value;
+  const age = document.getElementById("age").value;
+  const address = document.getElementById("address").value;
+  const phone = document.getElementById("phone").value;
+  const chronic = document.getElementById("chronic").value;
+  const hp = document.getElementById("hp").value;
+  const lastDonation = document.getElementById("lastDonation").value;
 
-  if (section === "add") {
-    content.innerHTML = `
-      <h2>➕ إضافة بيانات متبرع</h2>
-      <form id="donorForm">
-        <label>الاسم:</label><br>
-        <input type="text" id="name"><br><br>
+  // مرجع لفرع donors في قاعدة البيانات
+  const donorRef = ref(db, 'donors');
+  const newDonor = push(donorRef);
 
-        <label>العمر:</label><br>
-        <input type="number" id="age"><br><br>
+  set(newDonor, {
+    name: name,
+    age: age,
+    address: address,
+    phone: phone,
+    chronic: chronic,
+    hp: hp,
+    lastDonation: lastDonation,
+    createdAt: new Date().toISOString()
+  }).then(() => {
+    alert("تم حفظ بيانات المتبرع بنجاح ✅");
+    document.getElementById("donorForm").reset();
+  }).catch((error) => {
+    alert("حصل خطأ: " + error.message);
+  });
+});
 
-        <label>السكن:</label><br>
-        <input type="text" id="address"><br><br>
-
-        <label>رقم التلفون:</label><br>
-        <input type="text" id="phone"><br><br>
-
-        <label>الأمراض المزمنة:</label><br>
-        <input type="text" id="diseases"><br><br>
-
-        <label>الـ HP (فصيلة الدم):</label><br>
-        <input type="text" id="hp"><br><br>
-
-        <label>تاريخ آخر تبرع:</label><br>
-        <input type="date" id="lastDonation"><br><br>
-
-        <button type="submit">حفظ البيانات</button>
-      </form>
-    `;
-
-    // ربط الفورم مع قاعدة البيانات
-    document.getElementById("donorForm").addEventListener("submit", function(e) {
-      e.preventDefault();
-
-      const donorData = {
-        name: document.getElementById("name").value,
-        age: document.getElementById("age").value,
-        address: document.getElementById("address").value,
-        phone: document.getElementById("phone").value,
-        diseases: document.getElementById("diseases").value,
-        hp: document.getElementById("hp").value,
-        lastDonation: document.getElementById("lastDonation").value,
-        createdAt: new Date().toISOString()
-      };
-
-      // تخزين البيانات في فرع donors/
-      database.ref("donors/").push(donorData)
-        .then(() => {
-          alert("✅ تم حفظ بيانات المتبرع بنجاح");
-          document.getElementById("donorForm").reset();
-        })
-        .catch((error) => {
-          alert("❌ خطأ: " + error.message);
-        });
-    });
-  }
-
-  else if (section === "search") {
-    content.innerHTML = `
-      <h2>🔍 البحث عن متبرع</h2>
-      <div id="donorsList">جاري تحميل البيانات...</div>
-    `;
-
-    // قراءة البيانات من قاعدة البيانات
+// 📌 استرجاع بيانات المتبرعين وعرضها
+function loadDonors() {
+  const donorRef = ref(db, 'donors');
+  onValue(donorRef, (snapshot) => {
     const donorsList = document.getElementById("donorsList");
-    database.ref("donors/").once("value", (snapshot) => {
-      donorsList.innerHTML = "";
-      snapshot.forEach((child) => {
-        const donor = child.val();
-        donorsList.innerHTML += `
-          <div style="border:1px solid #e60000; padding:10px; margin:10px; border-radius:8px; text-align:right; direction:rtl;">
-            <b>الاسم:</b> ${donor.name} <br>
-            <b>العمر:</b> ${donor.age} <br>
-            <b>السكن:</b> ${donor.address} <br>
-            <b>الهاتف:</b> ${donor.phone} <br>
-            <b>الأمراض:</b> ${donor.diseases} <br>
-            <b>فصيلة الدم:</b> ${donor.hp} <br>
-            <b>آخر تبرع:</b> ${donor.lastDonation || "—"} <br>
-          </div>
-        `;
-      });
-      if (!snapshot.exists()) {
-        donorsList.innerHTML = "⚠️ لا توجد بيانات متبرعين حتى الآن.";
-      }
+    donorsList.innerHTML = "";
+    snapshot.forEach((childSnapshot) => {
+      const donor = childSnapshot.val();
+      const div = document.createElement("div");
+      div.classList.add("donor-card");
+      div.innerHTML = `
+        <h3>${donor.name} (${donor.age} سنة)</h3>
+        <p><b>السكن:</b> ${donor.address}</p>
+        <p><b>الهاتف:</b> ${donor.phone}</p>
+        <p><b>الأمراض المزمنة:</b> ${donor.chronic}</p>
+        <p><b>HP:</b> ${donor.hp}</p>
+        <p><b>آخر تبرع:</b> ${donor.lastDonation || "لا يوجد"}</p>
+        <hr>
+      `;
+      donorsList.appendChild(div);
     });
-  }
+  });
+}
 
-  else if (section === "benefits") {
-    content.innerHTML = `
-      <h2>❤️ فوائد التبرع</h2>
-      <ul>
-        <li>تنشيط الدورة الدموية.</li>
-        <li>المساعدة في تقليل مخزون الحديد الزائد.</li>
-        <li>المساهمة في إنقاذ حياة الآخرين.</li>
-        <li>فحص طبي مجاني قبل كل تبرع.</li>
-      </ul>
-    `;
-  }
-
-  else if (section === "conditions") {
-    content.innerHTML = `
-      <h2>📋 شروط التبرع</h2>
-      <ul>
-        <li>أن يكون العمر بين 18 و 65 سنة.</li>
-        <li>أن يكون الوزن 50 كجم أو أكثر.</li>
-        <li>أن يكون المتبرع سليم من الأمراض المعدية.</li>
-        <li>أن لا يكون قد تبرع خلال أقل من 3 أشهر.</li>
-      </ul>
-    `;
-  }
+// نشغل التحميل أول ما يفتح
+if (document.getElementById("donorsList")) {
+  loadDonors();
 }
