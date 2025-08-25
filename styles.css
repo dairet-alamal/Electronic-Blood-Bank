@@ -1,67 +1,89 @@
-/* تنسيقات عامة */
+/* إعدادات أساسية */
 body {
-  font-family: "Tahoma", sans-serif;
+  font-family: "Tahoma", Arial, sans-serif;
   margin: 0;
   padding: 0;
-  background-color: #ffffff; /* خلفية بيضاء */
+  background-color: #ffffff;
   color: #333;
-  text-align: center;
+  direction: rtl;
+  text-align: right;
 }
 
 /* رأس الصفحة */
 header {
-  background-color: #fff;
+  background-color: #b30000;
+  color: white;
   padding: 20px;
-  border-bottom: 2px solid #e60000; /* خط أحمر */
-}
-
-header .logo {
-  font-size: 40px;
+  text-align: center;
+  border-bottom: 5px solid #800000;
 }
 
 header h1 {
-  margin: 10px 0 0;
-  color: #e60000; /* أحمر */
+  margin: 0;
+  font-size: 28px;
 }
 
-/* الحاوية الرئيسية */
-.container {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 15px;
-  padding: 20px;
+header p {
+  margin: 5px 0 0;
+  font-size: 16px;
 }
 
-/* الكروت */
-.card {
-  background-color: #e60000; /* أحمر */
-  color: #fff; /* كتابة بيضاء */
+/* الأقسام */
+section {
+  margin: 20px auto;
   padding: 20px;
+  border: 2px solid #b30000;
   border-radius: 12px;
-  font-size: 18px;
+  background-color: #fff5f5;
+  width: 90%;
+  max-width: 600px;
+}
+
+section h2 {
+  color: #b30000;
+  margin-bottom: 15px;
+}
+
+/* الفورم */
+form label {
+  display: block;
+  margin-top: 10px;
+  font-weight: bold;
+}
+
+form input {
+  width: 100%;
+  padding: 10px;
+  margin-top: 5px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+
+button {
+  background-color: #b30000;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  margin-top: 15px;
+  border-radius: 8px;
   cursor: pointer;
-  transition: 0.3s;
+  font-size: 16px;
 }
 
-.card:hover {
-  background-color: #cc0000; /* أحمر غامق عند المرور */
+button:hover {
+  background-color: #800000;
 }
 
-/* قسم المحتوى */
-.content {
-  margin: 20px;
-  padding: 20px;
-  border: 1px solid #e60000;
-  border-radius: 12px;
-  background-color: #f9f9f9;
-  text-align: right;
-  direction: rtl; /* عشان النصوص بالعربي */
+/* القوائم */
+ul {
+  list-style: square;
+  padding-right: 20px;
 }
 
 /* الفوتر */
 footer {
-  text-align: right;
-  padding: 10px 20px;
-  font-size: 14px;
-  color: #666;
+  margin-top: 40px;
+  padding: 10px;
+  background-color: #f2f2f2;
+  border-top: 2px solid #ccc;
 }
