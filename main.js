@@ -1,26 +1,32 @@
-// استدعاء Firebase
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, query } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+// Firebase Import
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+import { getDatabase, ref, push, set, get } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
-// إعداد Firebase
+// ✅ بيانات مشروعك
 const firebaseConfig = {
-  apiKey: "AIzaSyANAmBZ2ySOP6hcVMZ2zfu8PsnXnHqZbOA",
+  apiKey: "AIzaSyA-xxx", // ← استبدلها من Firebase console
   authDomain: "amal-recovery.firebaseapp.com",
+  databaseURL: "https://amal-recovery-default-rtdb.firebaseio.com",
   projectId: "amal-recovery",
-  storageBucket: "amal-recovery.firebasestorage.app",
-  messagingSenderId: "1082715046722",
-  appId: "1:1082715046722:web:d1a116cc70f2276f513edb",
-  measurementId: "G-Z5D7GQ860S"
+  storageBucket: "amal-recovery.appspot.com",
+  messagingSenderId: "1234567890",
+  appId: "1:1234567890:web:xxxxxxxx"
 };
 
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+const db = getDatabase(app);
 
-// ---------------------------------
-// إضافة متبرع
-// ---------------------------------
-const donorForm = document.getElementById("donorForm");
-donorForm.addEventListener("submit", async (e) => {
+// دالة لإظهار قسم معين
+function showSection(sectionId) {
+  const sections = document.querySelectorAll("section");
+  sections.forEach(sec => sec.style.display = "none");
+  document.getElementById(sectionId).style.display = "block";
+}
+window.showSection = showSection;
+
+// ✅ إضافة متبرع
+document.getElementById("donorForm").addEventListener("submit", async (e) => {
   e.preventDefault();
 
   const donorData = {
@@ -28,70 +34,63 @@ donorForm.addEventListener("submit", async (e) => {
     age: document.getElementById("age").value,
     address: document.getElementById("address").value,
     phone: document.getElementById("phone").value,
-    diseases: document.getElementById("diseases").value || "لا يوجد",
+    diseases: document.getElementById("diseases").value,
     hp: document.getElementById("hp").value,
-    lastDonation: document.getElementById("lastDonation").value || "لا يوجد"
+    lastDonation: document.getElementById("lastDonation").value || "غير محدد"
   };
 
-  try {
-    await addDoc(collection(db, "donors"), donorData);
-    alert("✅ تم حفظ بيانات المتبرع بنجاح!");
-    donorForm.reset();
-  } catch (error) {
-    console.error("خطأ:", error);
-    alert("❌ حصل خطأ أثناء الحفظ.");
-  }
+  const donorsRef = ref(db, "donors");
+  const newDonorRef = push(donorsRef);
+  await set(newDonorRef, donorData);
+
+  document.getElementById("donorMessage").innerText = "✅ تم حفظ بيانات المتبرع بنجاح!";
+  document.getElementById("donorForm").reset();
 });
 
-// ---------------------------------
-// البحث عن متبرع
-// ---------------------------------
-const searchForm = document.getElementById("searchForm");
-const resultsDiv = document.getElementById("results");
-
-searchForm.addEventListener("submit", async (e) => {
+// ✅ البحث عن متبرع
+document.getElementById("searchForm").addEventListener("submit", async (e) => {
   e.preventDefault();
 
-  const searchValue = document.getElementById("search").value.trim();
-  resultsDiv.innerHTML = "<p>⏳ جاري البحث...</p>";
+  const name = document.getElementById("searchName").value.trim().toLowerCase();
+  const hp = document.getElementById("searchHp").value.trim().toLowerCase();
+  const address = document.getElementById("searchAddress").value.trim().toLowerCase();
 
-  try {
-    const q = query(collection(db, "donors"));
-    const querySnapshot = await getDocs(q);
+  const donorsRef = ref(db, "donors");
+  const snapshot = await get(donorsRef);
 
-    let results = [];
-    querySnapshot.forEach((doc) => {
-      const donor = doc.data();
+  const resultsDiv = document.getElementById("searchResults");
+  resultsDiv.innerHTML = "";
+
+  if (snapshot.exists()) {
+    const donors = snapshot.val();
+    let found = false;
+
+    Object.values(donors).forEach(donor => {
       if (
-        donor.name.includes(searchValue) ||
-        donor.hp.includes(searchValue) ||
-        donor.address.includes(searchValue)
+        (!name || donor.name.toLowerCase().includes(name)) &&
+        (!hp || donor.hp.toLowerCase().includes(hp)) &&
+        (!address || donor.address.toLowerCase().includes(address))
       ) {
-        results.push(donor);
+        found = true;
+        const div = document.createElement("div");
+        div.classList.add("donor-card");
+        div.innerHTML = `
+          <p><strong>الاسم:</strong> ${donor.name}</p>
+          <p><strong>العمر:</strong> ${donor.age}</p>
+          <p><strong>العنوان:</strong> ${donor.address}</p>
+          <p><strong>الهاتف:</strong> ${donor.phone}</p>
+          <p><strong>الأمراض:</strong> ${donor.diseases}</p>
+          <p><strong>الفصيلة:</strong> ${donor.hp}</p>
+          <p><strong>آخر تبرع:</strong> ${donor.lastDonation}</p>
+        `;
+        resultsDiv.appendChild(div);
       }
     });
 
-    if (results.length > 0) {
-      resultsDiv.innerHTML = results
-        .map(
-          (d) => `
-          <div class="donor-card">
-            <p><strong>الاسم:</strong> ${d.name}</p>
-            <p><strong>العمر:</strong> ${d.age}</p>
-            <p><strong>السكن:</strong> ${d.address}</p>
-            <p><strong>التلفون:</strong> ${d.phone}</p>
-            <p><strong>الأمراض:</strong> ${d.diseases}</p>
-            <p><strong>فصيلة الدم:</strong> ${d.hp}</p>
-            <p><strong>آخر تبرع:</strong> ${d.lastDonation}</p>
-          </div>
-        `
-        )
-        .join("");
-    } else {
-      resultsDiv.innerHTML = "<p>❌ لا توجد نتائج مطابقة.</p>";
+    if (!found) {
+      resultsDiv.innerHTML = "<p style='color:red;'>❌ لا توجد نتائج مطابقة</p>";
     }
-  } catch (error) {
-    console.error("خطأ في البحث:", error);
-    resultsDiv.innerHTML = "<p>❌ حصل خطأ أثناء البحث.</p>";
+  } else {
+    resultsDiv.innerHTML = "<p style='color:red;'>❌ قاعدة البيانات فارغة</p>";
   }
 });
