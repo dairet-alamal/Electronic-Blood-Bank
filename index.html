@@ -1,37 +1,73 @@
 <!DOCTYPE html>
 <html lang="ar">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>بنك الدم الإلكتروني - Blood Bank</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8">
+  <title>بنك الدم الإلكتروني - Electronic Blood Bank</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <header>
-        <div class="logo-title">
-            <img src="https://img.icons8.com/fluency/48/blood-drop.png" alt="Logo" class="logo">
-            <h1>بنك الدم الإلكتروني</h1>
-            <h2>Blood Bank</h2>
-        </div>
-    </header>
+  <header>
+    <h1>💉 بنك الدم الإلكتروني - Electronic Blood Bank</h1>
+  </header>
 
-    <main>
-        <div class="buttons-container">
-            <button id="addDonorBtn" class="red-btn">إضافة متبرع</button>
-            <button id="searchDonorBtn" class="red-btn">بحث عن متبرع</button>
-            <button id="benefitsBtn" class="red-btn">فوائد التبرع</button>
-            <button id="requirementsBtn" class="red-btn">شروط التبرع</button>
-        </div>
+  <main>
+    <div class="buttons">
+      <button onclick="showSection('addDonor')">➕ إضافة متبرع</button>
+      <button onclick="showSection('searchDonor')">🔍 البحث عن متبرع</button>
+      <button onclick="showSection('benefits')">❤️ فوائد التبرع</button>
+      <button onclick="showSection('conditions')">⚠️ شروط التبرع</button>
+    </div>
 
-        <div id="contentArea">
-            <!-- محتوى الأقسام يظهر هنا -->
-        </div>
-    </main>
+    <!-- إضافة متبرع -->
+    <section id="addDonor" class="hidden">
+      <h2>إضافة متبرع جديد</h2>
+      <form id="donorForm">
+        <input type="text" id="name" placeholder="الاسم" required>
+        <input type="number" id="age" placeholder="العمر" required>
+        <input type="text" id="address" placeholder="السكن" required>
+        <input type="text" id="phone" placeholder="رقم التلفون" required>
+        <input type="text" id="diseases" placeholder="الأمراض المزمنة">
+        <input type="date" id="lastDonation" placeholder="تاريخ آخر تبرع">
+        <input type="text" id="bloodType" placeholder="فصيلة الدم" required>
+        <button type="submit" id="addBtn">إضافة البيانات</button>
+      </form>
+    </section>
 
-    <footer>
-        <p>H. H. I. M</p>
-    </footer>
+    <!-- البحث عن متبرع -->
+    <section id="searchDonor" class="hidden">
+      <h2>البحث عن متبرع</h2>
+      <input type="text" id="searchBloodType" placeholder="أدخل فصيلة الدم" required>
+      <button id="searchBtn">بحث</button>
+      <div id="results"></div>
+    </section>
 
-    <script type="module" src="main.js"></script>
+    <!-- فوائد التبرع -->
+    <section id="benefits" class="hidden">
+      <h2>فوائد التبرع بالدم</h2>
+      <ul>
+        <li>المساعدة في إنقاذ حياة المرضى.</li>
+        <li>تنشيط الدورة الدموية للمتبرع.</li>
+        <li>التقليل من مخاطر الإصابة بأمراض القلب.</li>
+        <li>إعطاء فرصة لفحص صحة الدم بشكل دوري.</li>
+      </ul>
+    </section>
+
+    <!-- شروط التبرع -->
+    <section id="conditions" class="hidden">
+      <h2>شروط التبرع بالدم</h2>
+      <ul>
+        <li>أن يكون العمر بين 18 و 65 سنة.</li>
+        <li>أن لا يقل الوزن عن 50 كجم.</li>
+        <li>أن يكون المتبرع خالي من الأمراض المعدية.</li>
+        <li>وجود فاصل زمني لا يقل عن 3 أشهر بين كل تبرعين.</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer>
+    <p>توقيع بي H. H. I. M</p>
+  </footer>
+
+  <script type="module" src="main.js"></script>
 </body>
 </html>
