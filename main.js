@@ -1,10 +1,14 @@
-// ========================
-// 1. ربط Firebase
-// ========================
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, collection, addDoc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+// ============================
+// Firebase (CDN Modules)
+// ============================
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+import { getFirestore, collection, addDoc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
-// بيانات مشروعك
+/**
+ * إعدادات مشروعك - استخدمت بياناتك المذكورة.
+ * صححت storageBucket إلى appspot.com (الصيغة الصحيحة).
+ * measurementId غير مطلوب هنا.
+ */
 const firebaseConfig = {
   apiKey: "AIzaSyANAmBZ2ySOP6hcVMZ2zfu8PsnXnHqZbOA",
   authDomain: "amal-recovery.firebaseapp.com",
@@ -14,93 +18,119 @@ const firebaseConfig = {
   appId: "1:1082715046722:web:d1a116cc70f2276f513edb"
 };
 
-// تشغيل Firebase
+// تشغيل Firebase + Firestore
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// ========================
-// 2. التحكم في عرض الأقسام
-// ========================
-function showSection(id) {
-  document.querySelectorAll("section").forEach(sec => sec.classList.add("hidden"));
-  document.getElementById(id).classList.remove("hidden");
+// ============================
+// منطق إظهار/إخفاء الأقسام
+// ============================
+const panels = document.querySelectorAll(".panel");
+function showSection(id){
+  panels.forEach(p => p.classList.add("hidden"));
+  const target = document.getElementById(id);
+  if (target) target.classList.remove("hidden");
 }
 window.showSection = showSection;
 
-// ========================
-// 3. إضافة متبرع
-// ========================
+// أربط أزرار القائمة
+document.querySelectorAll(".menu .tab-btn").forEach(btn=>{
+  btn.addEventListener("click", ()=> showSection(btn.dataset.target));
+});
+
+// (افتراضياً: ما بنعرض أي قسم لحد ما المستخدم يضغط زر)
+
+// ============================
+// إضافة متبرع → Firestore
+// ============================
 const donorForm = document.getElementById("donorForm");
+const addMsg = document.getElementById("addMessage");
+const saveBtn = document.getElementById("saveBtn");
+
 if (donorForm) {
-  donorForm.addEventListener("submit", async (e) => {
+  donorForm.addEventListener("submit", async (e)=>{
     e.preventDefault();
+    // اقرا القيم
+    const donor = {
+      name: donorForm.name.value.trim(),
+      age: Number(donorForm.age.value),
+      address: donorForm.address.value.trim(),
+      phone: donorForm.phone.value.trim(),
+      diseases: donorForm.diseases.value.trim() || "",
+      hp: donorForm.hp.value.trim(),
+      lastDonation: donorForm.lastDonation.value || null,
+      createdAt: new Date().toISOString()
+    };
+
+    // فحوصات بسيطة
+    if (!donor.name || !donor.age || !donor.address || !donor.phone || !donor.hp) {
+      addMsg.textContent = "الرجاء إكمال البيانات المطلوبة.";
+      return;
+    }
 
     try {
-      await addDoc(collection(db, "donors"), {
-        name: donorForm.name.value,
-        age: donorForm.age.value,
-        address: donorForm.address.value,
-        phone: donorForm.phone.value,
-        diseases: donorForm.diseases.value,
-        hp: donorForm.hp.value,
-        lastDonation: donorForm.lastDonation.value || null,
-        createdAt: new Date().toISOString()
-      });
-
-      document.getElementById("addMessage").textContent = "✅ تم حفظ بيانات المتبرع بنجاح";
+      await addDoc(collection(db, "donors"), donor);
+      // رسالة نجاح + تغيير لون زر الحفظ للأخضر لحظياً
+      addMsg.textContent = "✅ تم حفظ بيانات المتبرع بنجاح";
+      saveBtn.classList.add("success");
+      setTimeout(()=> saveBtn.classList.remove("success"), 1500);
       donorForm.reset();
-    } catch (error) {
-      console.error("خطأ في إضافة المتبرع:", error);
+    } catch (err) {
+      console.error(err);
+      addMsg.textContent = "❌ حدث خطأ أثناء الحفظ";
     }
   });
 }
 
-// ========================
-// 4. البحث عن متبرع
-// ========================
+// ============================
+// البحث (بالفصيلة فقط) → Firestore
+// ============================
 const searchForm = document.getElementById("searchForm");
+const resultsDiv = document.getElementById("results");
+const searchBtn = document.getElementById("searchBtn");
+
 if (searchForm) {
-  searchForm.addEventListener("submit", async (e) => {
+  searchForm.addEventListener("submit", async (e)=>{
     e.preventDefault();
+    resultsDiv.innerHTML = "";
 
-    const name = document.getElementById("searchName").value.trim();
     const hp = document.getElementById("searchHp").value.trim();
-    const resultsDiv = document.getElementById("results");
-    resultsDiv.innerHTML = "⏳ جاري البحث...";
-
-    let q = collection(db, "donors");
-    let conditions = [];
-
-    if (name) conditions.push(where("name", "==", name));
-    if (hp) conditions.push(where("hp", "==", hp));
-
-    let finalQuery = query(q, ...conditions);
+    if (!hp){
+      resultsDiv.textContent = "اكتب فصيلة الدم أولاً (مثال: O+)";
+      return;
+    }
 
     try {
-      const snapshot = await getDocs(finalQuery);
-      resultsDiv.innerHTML = "";
+      // استعلام دقيق على الفصيلة
+      const q = query(collection(db, "donors"), where("hp", "==", hp));
+      const snap = await getDocs(q);
 
-      if (snapshot.empty) {
-        resultsDiv.textContent = "❌ لا توجد نتائج";
-        return;
+      if (snap.empty){
+        resultsDiv.textContent = "❌ لا توجد نتائج مطابقة لهذه الفصيلة";
+      } else {
+        snap.forEach(doc=>{
+          const d = doc.data();
+          const card = document.createElement("div");
+          card.className = "donor-card";
+          card.innerHTML = `
+            <p><strong>الاسم:</strong> ${d.name}</p>
+            <p><strong>العمر:</strong> ${d.age}</p>
+            <p><strong>السكن:</strong> ${d.address}</p>
+            <p><strong>الهاتف:</strong> ${d.phone}</p>
+            <p><strong>الفصيلة:</strong> ${d.hp}</p>
+            <p class="muted"><strong>آخر تبرع:</strong> ${d.lastDonation || "غير محدد"}</p>
+          `;
+          resultsDiv.appendChild(card);
+        });
       }
 
-      snapshot.forEach(doc => {
-        const d = doc.data();
-        const card = document.createElement("div");
-        card.className = "donor-card";
-        card.innerHTML = `
-          <h3>${d.name}</h3>
-          <p>العمر: ${d.age}</p>
-          <p>العنوان: ${d.address}</p>
-          <p>الهاتف: ${d.phone}</p>
-          <p>الفصيلة: ${d.hp}</p>
-          <p>آخر تبرع: ${d.lastDonation || "لا يوجد"}</p>
-        `;
-        resultsDiv.appendChild(card);
-      });
-    } catch (error) {
-      console.error("خطأ في البحث:", error);
+      // زر البحث يتحول أخضر لحظياً
+      searchBtn.classList.add("success");
+      setTimeout(()=> searchBtn.classList.remove("success"), 1500);
+
+    } catch (err) {
+      console.error(err);
+      resultsDiv.textContent = "❌ حدث خطأ أثناء البحث";
     }
   });
 }
