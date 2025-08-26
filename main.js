@@ -1,67 +1,122 @@
-// Firebase
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+// Firebase Initialization
+import { initializeApp } from "firebase/app";
+import { getDatabase, ref, set, push, get, child } from "firebase/database";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyANAmBZ2ySOP6hcVMZ2zfu8PsnXnHqZbOA",
-  authDomain: "amal-recovery.firebaseapp.com",
-  projectId: "amal-recovery",
-  storageBucket: "amal-recovery.appspot.com",
-  messagingSenderId: "1082715046722",
-  appId: "1:1082715046722:web:d1a116cc70f2276f513edb"
+    apiKey: "AIzaSyANAmBZ2ySOP6hcVMZ2zfu8PsnXnHqZbOA",
+    authDomain: "amal-recovery.firebaseapp.com",
+    projectId: "amal-recovery",
+    storageBucket: "amal-recovery.firebasestorage.app",
+    messagingSenderId: "1082715046722",
+    appId: "1:1082715046722:web:d1a116cc70f2276f513edb",
+    measurementId: "G-Z5D7GQ860S"
 };
 
 const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+const database = getDatabase(app);
+
+// عناصر الصفحة
+const addDonorBtn = document.getElementById('addDonorBtn');
+const searchDonorBtn = document.getElementById('searchDonorBtn');
+const benefitsBtn = document.getElementById('benefitsBtn');
+const requirementsBtn = document.getElementById('requirementsBtn');
+
+const addDonorForm = document.getElementById('addDonorForm');
+const searchDonorForm = document.getElementById('searchDonorForm');
+const benefitsInfo = document.getElementById('benefitsInfo');
+const requirementsInfo = document.getElementById('requirementsInfo');
+
+const submitDonorBtn = document.getElementById('submitDonorBtn');
+const submitSearchBtn = document.getElementById('submitSearchBtn');
+const searchResults = document.getElementById('searchResults');
 
 // إظهار/إخفاء الأقسام
-function toggleSection(id) {
-  document.querySelectorAll("section").forEach(sec => sec.classList.add("hidden"));
-  document.getElementById(id).classList.remove("hidden");
-}
-window.toggleSection = toggleSection;
-
-// إضافة متبرع
-document.getElementById("donorForm").addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const donor = {
-    name: document.getElementById("name").value,
-    age: document.getElementById("age").value,
-    address: document.getElementById("address").value,
-    phone: document.getElementById("phone").value,
-    diseases: document.getElementById("diseases").value,
-    hp: document.getElementById("hp").value,
-    lastDonation: document.getElementById("lastDonation").value
-  };
-  await addDoc(collection(db, "donors"), donor);
-  alert("تم حفظ بيانات المتبرع ✅");
-  document.getElementById("saveBtn").classList.add("done");
-  e.target.reset();
+addDonorBtn.addEventListener('click', () => {
+    hideAllSections();
+    addDonorForm.classList.remove('hidden');
 });
 
-// البحث
-document.getElementById("searchForm").addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const bloodType = document.getElementById("searchHp").value;
-  const q = query(collection(db, "donors"), where("hp", "==", bloodType));
-  const results = await getDocs(q);
-  const container = document.getElementById("searchResults");
-  container.innerHTML = "";
-  if (results.empty) {
-    container.innerHTML = "<p>لا توجد نتائج.</p>";
-  } else {
-    results.forEach(doc => {
-      const d = doc.data();
-      container.innerHTML += `
-        <div class="card">
-          <p><b>الاسم:</b> ${d.name}</p>
-          <p><b>العمر:</b> ${d.age}</p>
-          <p><b>السكن:</b> ${d.address}</p>
-          <p><b>الهاتف:</b> ${d.phone}</p>
-          <p><b>فصيلة الدم:</b> ${d.hp}</p>
-        </div>
-      `;
+searchDonorBtn.addEventListener('click', () => {
+    hideAllSections();
+    searchDonorForm.classList.remove('hidden');
+});
+
+benefitsBtn.addEventListener('click', () => {
+    hideAllSections();
+    benefitsInfo.classList.remove('hidden');
+});
+
+requirementsBtn.addEventListener('click', () => {
+    hideAllSections();
+    requirementsInfo.classList.remove('hidden');
+});
+
+function hideAllSections() {
+    addDonorForm.classList.add('hidden');
+    searchDonorForm.classList.add('hidden');
+    benefitsInfo.classList.add('hidden');
+    requirementsInfo.classList.add('hidden');
+}
+
+// إضافة متبرع
+submitDonorBtn.addEventListener('click', () => {
+    const donorData = {
+        name: document.getElementById('donorName').value,
+        age: document.getElementById('donorAge').value,
+        address: document.getElementById('donorAddress').value,
+        phone: document.getElementById('donorPhone').value,
+        diseases: document.getElementById('donorDiseases').value,
+        lastDonation: document.getElementById('donorLastDonation').value || '',
+        bloodType: document.getElementById('donorBloodType').value
+    };
+
+    const newDonorRef = push(ref(database, 'donors'));
+    set(newDonorRef, donorData)
+        .then(() => {
+            submitDonorBtn.classList.add('green');
+            alert('تم إضافة المتبرع بنجاح!');
+            addDonorForm.reset();
+        })
+        .catch((error) => {
+            alert('حدث خطأ: ' + error.message);
+        });
+});
+
+// البحث عن متبرع حسب الفصيلة
+submitSearchBtn.addEventListener('click', () => {
+    const bloodType = document.getElementById('searchBloodType').value.trim();
+    if (!bloodType) {
+        alert('يرجى إدخال فصيلة الدم');
+        return;
+    }
+
+    get(child(ref(database), 'donors')).then((snapshot) => {
+        searchResults.innerHTML = '';
+        if (snapshot.exists()) {
+            const donors = snapshot.val();
+            let found = false;
+            for (let key in donors) {
+                if (donors[key].bloodType === bloodType) {
+                    found = true;
+                    const div = document.createElement('div');
+                    div.innerHTML = `
+                        <p>الاسم: ${donors[key].name}</p>
+                        <p>العمر: ${donors[key].age}</p>
+                        <p>السكن: ${donors[key].address}</p>
+                        <p>رقم التلفون: ${donors[key].phone}</p>
+                        <p>الأمراض المزمنة: ${donors[key].diseases}</p>
+                        <p>آخر تبرع: ${donors[key].lastDonation || 'لم يتم'} </p>
+                        <p>فصيلة الدم: ${donors[key].bloodType}</p>
+                        <hr>
+                    `;
+                    searchResults.appendChild(div);
+                }
+            }
+            if (!found) {
+                searchResults.innerHTML = '<p>لا يوجد متبرعين بهذه الفصيلة</p>';
+            }
+        } else {
+            searchResults.innerHTML = '<p>لا يوجد بيانات</p>';
+        }
     });
-  }
-  document.getElementById("searchBtn").classList.add("done");
 });
