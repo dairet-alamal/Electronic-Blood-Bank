@@ -1,26 +1,98 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>بنك الدم الإلكتروني</title>
-  <link rel="stylesheet" href="styles.css">
+  <style>
+    body {
+      font-family: "Tahoma", sans-serif;
+      background: #f9f9f9;
+      margin: 0;
+      padding: 0;
+      text-align: center;
+    }
+    header {
+      background: #b30000;
+      color: white;
+      padding: 15px;
+      font-size: 22px;
+      font-weight: bold;
+    }
+    nav {
+      margin: 15px 0;
+    }
+    nav button {
+      margin: 5px;
+      padding: 10px 20px;
+      border: none;
+      background: #b30000;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    nav button:hover {
+      background: #800000;
+    }
+    section {
+      display: none;
+      padding: 15px;
+      background: white;
+      margin: 15px;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      text-align: right;
+    }
+    form label {
+      display: block;
+      margin: 10px 0 5px;
+      font-weight: bold;
+    }
+    form input {
+      width: 95%;
+      padding: 8px;
+      margin-bottom: 10px;
+    }
+    form button {
+      padding: 10px 15px;
+      background: #b30000;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    form button:hover {
+      background: #800000;
+    }
+    .donor-card {
+      border: 1px solid #ddd;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 5px;
+      text-align: right;
+      background: #f1f1f1;
+    }
+    footer {
+      margin-top: 30px;
+      padding: 15px;
+      background: #333;
+      color: white;
+    }
+  </style>
 </head>
 <body>
-  <header>
-    <h1>بنك الدم الإلكتروني</h1>
-  </header>
 
-  <!-- الأزرار الرئيسية -->
-  <nav class="main-nav">
+  <header>بنك الدم الإلكتروني</header>
+
+  <nav>
     <button onclick="showSection('add-donor')">➕ إضافة متبرع</button>
-    <button onclick="showSection('search-donor')">🔍 البحث عن متبرع</button>
-    <button onclick="showSection('benefits')">❤️ فوائد التبرع</button>
+    <button onclick="showSection('search')">🔍 البحث</button>
+    <button onclick="showSection('benefits')">✅ فوائد التبرع</button>
     <button onclick="showSection('conditions')">⚠️ شروط التبرع</button>
   </nav>
 
   <!-- إضافة بيانات متبرع -->
-  <section id="add-donor" style="display:none;">
+  <section id="add-donor">
     <h2>إضافة بيانات متبرع</h2>
     <form id="donorForm">
       <label for="name">الاسم:</label>
@@ -44,23 +116,22 @@
       <label for="lastDonation">تاريخ آخر تبرع (اختياري):</label>
       <input type="date" id="lastDonation" name="lastDonation">
 
-      <button type="submit">حفظ البيانات</button>
+      <button type="submit">💾 حفظ البيانات</button>
     </form>
-    <p id="donorMessage" style="color:green;"></p>
   </section>
 
-  <!-- البحث عن متبرع -->
-  <section id="search-donor" style="display:none;">
-    <h2>البحث عن متبرع</h2>
+  <!-- البحث -->
+  <section id="search">
+    <h2>🔍 البحث عن متبرع</h2>
     <form id="searchForm">
       <label for="searchName">الاسم:</label>
-      <input type="text" id="searchName" name="searchName">
+      <input type="text" id="searchName" placeholder="ادخل الاسم">
 
-      <label for="searchHp">فصيلة الدم (HP):</label>
-      <input type="text" id="searchHp" name="searchHp">
+      <label for="searchHP">فصيلة الدم:</label>
+      <input type="text" id="searchHP" placeholder="ادخل الفصيلة">
 
-      <label for="searchAddress">السكن:</label>
-      <input type="text" id="searchAddress" name="searchAddress">
+      <label for="searchAddress">العنوان:</label>
+      <input type="text" id="searchAddress" placeholder="ادخل العنوان">
 
       <button type="submit">بحث</button>
     </form>
@@ -68,32 +139,37 @@
   </section>
 
   <!-- فوائد التبرع -->
-  <section id="benefits" style="display:none;">
+  <section id="benefits">
     <h2>فوائد التبرع بالدم</h2>
     <ul>
-      <li>تنشيط الدورة الدموية.</li>
-      <li>تقليل خطر الإصابة بأمراض القلب.</li>
-      <li>المساعدة في إنقاذ حياة الآخرين.</li>
-      <li>فحص طبي مجاني عند كل عملية تبرع.</li>
+      <li>يساعد في إنقاذ حياة المرضى.</li>
+      <li>ينشط الدورة الدموية للمتبرع.</li>
+      <li>يقلل من احتمالية الإصابة بأمراض القلب.</li>
+      <li>يساعد في تجديد كرات الدم الحمراء.</li>
     </ul>
   </section>
 
   <!-- شروط التبرع -->
-  <section id="conditions" style="display:none;">
+  <section id="conditions">
     <h2>شروط التبرع بالدم</h2>
     <ul>
-      <li>أن يكون العمر بين 18 و 65 سنة.</li>
-      <li>أن يكون الوزن أكثر من 50 كجم.</li>
-      <li>أن يكون المتبرع بصحة جيدة ولا يعاني من أمراض معدية.</li>
-      <li>ألا يكون قد تبرع خلال الثلاثة أشهر الماضية.</li>
+      <li>أن يكون عمر المتبرع بين 18 و 65 سنة.</li>
+      <li>أن لا يقل وزن المتبرع عن 50 كجم.</li>
+      <li>أن لا يكون المتبرع مصاباً بأي أمراض معدية.</li>
+      <li>الراحة بعد التبرع لمدة لا تقل عن 10 دقائق.</li>
     </ul>
   </section>
 
   <footer>
-    <p style="text-align:right; margin:20px;">H. H. I. M</p>
+    جميع الحقوق محفوظة © بنك الدم الإلكتروني
   </footer>
 
-  <!-- Firebase -->
+  <script>
+    function showSection(id) {
+      document.querySelectorAll("section").forEach(sec => sec.style.display = "none");
+      document.getElementById(id).style.display = "block";
+    }
+  </script>
   <script type="module" src="main.js"></script>
 </body>
 </html>
