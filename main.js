@@ -1,105 +1,106 @@
-// ----------------------------
-// ربط مع Firebase
-// ----------------------------
-import { initializeApp } from "firebase/app";
-import { getDatabase, ref, push, set, get, child } from "firebase/database";
+// ========================
+// 1. ربط Firebase
+// ========================
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFirestore, collection, addDoc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
+// بيانات مشروعك
 const firebaseConfig = {
   apiKey: "AIzaSyANAmBZ2ySOP6hcVMZ2zfu8PsnXnHqZbOA",
   authDomain: "amal-recovery.firebaseapp.com",
   projectId: "amal-recovery",
-  storageBucket: "amal-recovery.firebasestorage.app",
+  storageBucket: "amal-recovery.appspot.com",
   messagingSenderId: "1082715046722",
-  appId: "1:1082715046722:web:d1a116cc70f2276f513edb",
-  measurementId: "G-Z5D7GQ860S",
-  databaseURL: "https://amal-recovery-default-rtdb.firebaseio.com/" // مهم عشان التخزين
+  appId: "1:1082715046722:web:d1a116cc70f2276f513edb"
 };
 
+// تشغيل Firebase
 const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
+const db = getFirestore(app);
 
-// ----------------------------
-// إضافة متبرع جديد
-// ----------------------------
+// ========================
+// 2. التحكم في عرض الأقسام
+// ========================
+function showSection(id) {
+  document.querySelectorAll("section").forEach(sec => sec.classList.add("hidden"));
+  document.getElementById(id).classList.remove("hidden");
+}
+window.showSection = showSection;
+
+// ========================
+// 3. إضافة متبرع
+// ========================
 const donorForm = document.getElementById("donorForm");
-
 if (donorForm) {
   donorForm.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const donorData = {
-      name: document.getElementById("name").value,
-      age: document.getElementById("age").value,
-      address: document.getElementById("address").value,
-      phone: document.getElementById("phone").value,
-      diseases: document.getElementById("diseases").value,
-      hp: document.getElementById("hp").value,
-      lastDonation: document.getElementById("lastDonation").value || "لم يتم التحديد"
-    };
-
     try {
-      const donorRef = push(ref(db, "donors"));
-      await set(donorRef, donorData);
-      alert("✅ تم حفظ بيانات المتبرع بنجاح!");
+      await addDoc(collection(db, "donors"), {
+        name: donorForm.name.value,
+        age: donorForm.age.value,
+        address: donorForm.address.value,
+        phone: donorForm.phone.value,
+        diseases: donorForm.diseases.value,
+        hp: donorForm.hp.value,
+        lastDonation: donorForm.lastDonation.value || null,
+        createdAt: new Date().toISOString()
+      });
+
+      document.getElementById("addMessage").textContent = "✅ تم حفظ بيانات المتبرع بنجاح";
       donorForm.reset();
     } catch (error) {
-      console.error("❌ خطأ أثناء الحفظ:", error);
+      console.error("خطأ في إضافة المتبرع:", error);
     }
   });
 }
 
-// ----------------------------
-// البحث عن متبرع
-// ----------------------------
+// ========================
+// 4. البحث عن متبرع
+// ========================
 const searchForm = document.getElementById("searchForm");
-const searchResults = document.getElementById("searchResults");
-
 if (searchForm) {
   searchForm.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const searchName = document.getElementById("searchName").value.toLowerCase();
-    const searchHP = document.getElementById("searchHP").value.toLowerCase();
-    const searchAddress = document.getElementById("searchAddress").value.toLowerCase();
+    const name = document.getElementById("searchName").value.trim();
+    const hp = document.getElementById("searchHp").value.trim();
+    const resultsDiv = document.getElementById("results");
+    resultsDiv.innerHTML = "⏳ جاري البحث...";
+
+    let q = collection(db, "donors");
+    let conditions = [];
+
+    if (name) conditions.push(where("name", "==", name));
+    if (hp) conditions.push(where("hp", "==", hp));
+
+    let finalQuery = query(q, ...conditions);
 
     try {
-      const snapshot = await get(child(ref(db), "donors"));
-      searchResults.innerHTML = "";
+      const snapshot = await getDocs(finalQuery);
+      resultsDiv.innerHTML = "";
 
-      if (snapshot.exists()) {
-        const donors = snapshot.val();
-        let found = false;
-
-        Object.values(donors).forEach((donor) => {
-          if (
-            (searchName && donor.name.toLowerCase().includes(searchName)) ||
-            (searchHP && donor.hp.toLowerCase().includes(searchHP)) ||
-            (searchAddress && donor.address.toLowerCase().includes(searchAddress))
-          ) {
-            found = true;
-            const div = document.createElement("div");
-            div.className = "donor-card";
-            div.innerHTML = `
-              <h3>💉 ${donor.name}</h3>
-              <p>العمر: ${donor.age}</p>
-              <p>العنوان: ${donor.address}</p>
-              <p>📞 ${donor.phone}</p>
-              <p>الأمراض المزمنة: ${donor.diseases || "لا يوجد"}</p>
-              <p>فصيلة الدم: ${donor.hp}</p>
-              <p>آخر تبرع: ${donor.lastDonation}</p>
-            `;
-            searchResults.appendChild(div);
-          }
-        });
-
-        if (!found) {
-          searchResults.innerHTML = "<p>❌ لا توجد نتائج مطابقة</p>";
-        }
-      } else {
-        searchResults.innerHTML = "<p>❌ لا توجد بيانات متبرعين</p>";
+      if (snapshot.empty) {
+        resultsDiv.textContent = "❌ لا توجد نتائج";
+        return;
       }
+
+      snapshot.forEach(doc => {
+        const d = doc.data();
+        const card = document.createElement("div");
+        card.className = "donor-card";
+        card.innerHTML = `
+          <h3>${d.name}</h3>
+          <p>العمر: ${d.age}</p>
+          <p>العنوان: ${d.address}</p>
+          <p>الهاتف: ${d.phone}</p>
+          <p>الفصيلة: ${d.hp}</p>
+          <p>آخر تبرع: ${d.lastDonation || "لا يوجد"}</p>
+        `;
+        resultsDiv.appendChild(card);
+      });
     } catch (error) {
-      console.error("❌ خطأ أثناء البحث:", error);
+      console.error("خطأ في البحث:", error);
     }
   });
 }
