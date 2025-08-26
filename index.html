@@ -8,87 +8,92 @@
 </head>
 <body>
   <header>
-    <img src="logo.png" alt="شعار التبرع بالدم" class="logo">
     <h1>بنك الدم الإلكتروني</h1>
   </header>
 
-  <main>
-    <!-- إضافة بيانات متبرع -->
-    <section id="add-donor">
-      <h2>إضافة بيانات متبرع</h2>
-      <form id="donorForm">
-        <label for="name">الاسم:</label>
-        <input type="text" id="name" name="name" required>
+  <!-- الأزرار الرئيسية -->
+  <nav class="main-nav">
+    <button onclick="showSection('add-donor')">➕ إضافة متبرع</button>
+    <button onclick="showSection('search-donor')">🔍 البحث عن متبرع</button>
+    <button onclick="showSection('benefits')">❤️ فوائد التبرع</button>
+    <button onclick="showSection('conditions')">⚠️ شروط التبرع</button>
+  </nav>
 
-        <label for="age">العمر:</label>
-        <input type="number" id="age" name="age" required>
+  <!-- إضافة بيانات متبرع -->
+  <section id="add-donor" style="display:none;">
+    <h2>إضافة بيانات متبرع</h2>
+    <form id="donorForm">
+      <label for="name">الاسم:</label>
+      <input type="text" id="name" name="name" required>
 
-        <label for="address">السكن:</label>
-        <input type="text" id="address" name="address" required>
+      <label for="age">العمر:</label>
+      <input type="number" id="age" name="age" required>
 
-        <label for="phone">رقم التلفون:</label>
-        <input type="tel" id="phone" name="phone" required>
+      <label for="address">السكن:</label>
+      <input type="text" id="address" name="address" required>
 
-        <label for="diseases">الأمراض المزمنة:</label>
-        <input type="text" id="diseases" name="diseases">
+      <label for="phone">رقم التلفون:</label>
+      <input type="tel" id="phone" name="phone" required>
 
-        <label for="hp">فصيلة الدم (HP):</label>
-        <input type="text" id="hp" name="hp" required>
+      <label for="diseases">الأمراض المزمنة:</label>
+      <input type="text" id="diseases" name="diseases">
 
-        <label for="lastDonation">تاريخ آخر تبرع (اختياري):</label>
-        <input type="date" id="lastDonation" name="lastDonation">
+      <label for="hp">فصيلة الدم (HP):</label>
+      <input type="text" id="hp" name="hp" required>
 
-        <button type="submit">حفظ البيانات</button>
-      </form>
-    </section>
+      <label for="lastDonation">تاريخ آخر تبرع (اختياري):</label>
+      <input type="date" id="lastDonation" name="lastDonation">
 
-    <!-- البحث عن متبرع -->
-    <section id="search-donor">
-      <h2>البحث عن متبرع</h2>
-      <form id="searchForm">
-        <label for="searchName">الاسم:</label>
-        <input type="text" id="searchName" name="searchName">
+      <button type="submit">حفظ البيانات</button>
+    </form>
+    <p id="donorMessage" style="color:green;"></p>
+  </section>
 
-        <label for="searchHp">فصيلة الدم (HP):</label>
-        <input type="text" id="searchHp" name="searchHp">
+  <!-- البحث عن متبرع -->
+  <section id="search-donor" style="display:none;">
+    <h2>البحث عن متبرع</h2>
+    <form id="searchForm">
+      <label for="searchName">الاسم:</label>
+      <input type="text" id="searchName" name="searchName">
 
-        <label for="searchAddress">السكن:</label>
-        <input type="text" id="searchAddress" name="searchAddress">
+      <label for="searchHp">فصيلة الدم (HP):</label>
+      <input type="text" id="searchHp" name="searchHp">
 
-        <!-- زر البحث -->
-        <button type="submit">بحث</button>
-      </form>
+      <label for="searchAddress">السكن:</label>
+      <input type="text" id="searchAddress" name="searchAddress">
 
-      <div id="searchResults"></div>
-    </section>
+      <button type="submit">بحث</button>
+    </form>
+    <div id="searchResults"></div>
+  </section>
 
-    <!-- فوائد التبرع -->
-    <section id="benefits">
-      <h2>فوائد التبرع بالدم</h2>
-      <ul>
-        <li>تنشيط الدورة الدموية.</li>
-        <li>التقليل من مخاطر الإصابة بأمراض القلب.</li>
-        <li>المساعدة في تجديد خلايا الدم.</li>
-        <li>إنقاذ حياة المرضى والمصابين.</li>
-      </ul>
-    </section>
+  <!-- فوائد التبرع -->
+  <section id="benefits" style="display:none;">
+    <h2>فوائد التبرع بالدم</h2>
+    <ul>
+      <li>تنشيط الدورة الدموية.</li>
+      <li>تقليل خطر الإصابة بأمراض القلب.</li>
+      <li>المساعدة في إنقاذ حياة الآخرين.</li>
+      <li>فحص طبي مجاني عند كل عملية تبرع.</li>
+    </ul>
+  </section>
 
-    <!-- شروط التبرع -->
-    <section id="conditions">
-      <h2>شروط التبرع بالدم</h2>
-      <ul>
-        <li>أن يكون العمر بين 18 و 65 سنة.</li>
-        <li>أن يكون الوزن أكثر من 50 كجم.</li>
-        <li>أن يكون المتبرع خالياً من الأمراض المعدية.</li>
-        <li>أن لا يكون قد تبرع خلال الثلاثة أشهر الماضية.</li>
-      </ul>
-    </section>
-  </main>
+  <!-- شروط التبرع -->
+  <section id="conditions" style="display:none;">
+    <h2>شروط التبرع بالدم</h2>
+    <ul>
+      <li>أن يكون العمر بين 18 و 65 سنة.</li>
+      <li>أن يكون الوزن أكثر من 50 كجم.</li>
+      <li>أن يكون المتبرع بصحة جيدة ولا يعاني من أمراض معدية.</li>
+      <li>ألا يكون قد تبرع خلال الثلاثة أشهر الماضية.</li>
+    </ul>
+  </section>
 
   <footer>
-    <p style="text-align: right;">H. H. I. M</p>
+    <p style="text-align:right; margin:20px;">H. H. I. M</p>
   </footer>
 
-  <script src="main.js"></script>
+  <!-- Firebase -->
+  <script type="module" src="main.js"></script>
 </body>
 </html>
