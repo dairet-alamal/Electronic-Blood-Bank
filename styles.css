@@ -1,89 +1,54 @@
-/* إعدادات أساسية */
 body {
-  font-family: "Tahoma", Arial, sans-serif;
-  margin: 0;
-  padding: 0;
+  font-family: "Tahoma", sans-serif;
+  direction: rtl;
   background-color: #ffffff;
   color: #333;
-  direction: rtl;
-  text-align: right;
-}
-
-/* رأس الصفحة */
-header {
-  background-color: #b30000;
-  color: white;
-  padding: 20px;
-  text-align: center;
-  border-bottom: 5px solid #800000;
-}
-
-header h1 {
   margin: 0;
-  font-size: 28px;
+  padding: 0;
 }
 
-header p {
-  margin: 5px 0 0;
-  font-size: 16px;
-}
-
-/* الأقسام */
-section {
-  margin: 20px auto;
-  padding: 20px;
-  border: 2px solid #b30000;
-  border-radius: 12px;
-  background-color: #fff5f5;
-  width: 90%;
-  max-width: 600px;
-}
-
-section h2 {
-  color: #b30000;
-  margin-bottom: 15px;
-}
-
-/* الفورم */
-form label {
-  display: block;
-  margin-top: 10px;
-  font-weight: bold;
-}
-
-form input {
-  width: 100%;
-  padding: 10px;
-  margin-top: 5px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-}
-
-button {
-  background-color: #b30000;
+header {
+  background: red;
   color: white;
+  padding: 15px;
+  text-align: center;
+}
+
+.main-nav {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin: 20px;
+}
+
+.main-nav button {
+  background: red;
+  color: white;
+  padding: 10px 15px;
   border: none;
-  padding: 12px 20px;
-  margin-top: 15px;
   border-radius: 8px;
   cursor: pointer;
   font-size: 16px;
 }
 
-button:hover {
-  background-color: #800000;
+.main-nav button:hover {
+  background: darkred;
 }
 
-/* القوائم */
-ul {
-  list-style: square;
-  padding-right: 20px;
+section {
+  padding: 20px;
+  margin: 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
 }
 
-/* الفوتر */
-footer {
-  margin-top: 40px;
-  padding: 10px;
-  background-color: #f2f2f2;
-  border-top: 2px solid #ccc;
+form label {
+  display: block;
+  margin-top: 10px;
+}
+
+form input, form button {
+  width: 100%;
+  padding: 8px;
+  margin-top: 5px;
 }
