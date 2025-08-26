@@ -1,96 +1,105 @@
-// Firebase Import
-import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-import { getDatabase, ref, push, set, get } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+// ----------------------------
+// ربط مع Firebase
+// ----------------------------
+import { initializeApp } from "firebase/app";
+import { getDatabase, ref, push, set, get, child } from "firebase/database";
 
-// ✅ بيانات مشروعك
 const firebaseConfig = {
-  apiKey: "AIzaSyA-xxx", // ← استبدلها من Firebase console
+  apiKey: "AIzaSyANAmBZ2ySOP6hcVMZ2zfu8PsnXnHqZbOA",
   authDomain: "amal-recovery.firebaseapp.com",
-  databaseURL: "https://amal-recovery-default-rtdb.firebaseio.com",
   projectId: "amal-recovery",
-  storageBucket: "amal-recovery.appspot.com",
-  messagingSenderId: "1234567890",
-  appId: "1:1234567890:web:xxxxxxxx"
+  storageBucket: "amal-recovery.firebasestorage.app",
+  messagingSenderId: "1082715046722",
+  appId: "1:1082715046722:web:d1a116cc70f2276f513edb",
+  measurementId: "G-Z5D7GQ860S",
+  databaseURL: "https://amal-recovery-default-rtdb.firebaseio.com/" // مهم عشان التخزين
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-// دالة لإظهار قسم معين
-function showSection(sectionId) {
-  const sections = document.querySelectorAll("section");
-  sections.forEach(sec => sec.style.display = "none");
-  document.getElementById(sectionId).style.display = "block";
-}
-window.showSection = showSection;
+// ----------------------------
+// إضافة متبرع جديد
+// ----------------------------
+const donorForm = document.getElementById("donorForm");
 
-// ✅ إضافة متبرع
-document.getElementById("donorForm").addEventListener("submit", async (e) => {
-  e.preventDefault();
+if (donorForm) {
+  donorForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-  const donorData = {
-    name: document.getElementById("name").value,
-    age: document.getElementById("age").value,
-    address: document.getElementById("address").value,
-    phone: document.getElementById("phone").value,
-    diseases: document.getElementById("diseases").value,
-    hp: document.getElementById("hp").value,
-    lastDonation: document.getElementById("lastDonation").value || "غير محدد"
-  };
+    const donorData = {
+      name: document.getElementById("name").value,
+      age: document.getElementById("age").value,
+      address: document.getElementById("address").value,
+      phone: document.getElementById("phone").value,
+      diseases: document.getElementById("diseases").value,
+      hp: document.getElementById("hp").value,
+      lastDonation: document.getElementById("lastDonation").value || "لم يتم التحديد"
+    };
 
-  const donorsRef = ref(db, "donors");
-  const newDonorRef = push(donorsRef);
-  await set(newDonorRef, donorData);
-
-  document.getElementById("donorMessage").innerText = "✅ تم حفظ بيانات المتبرع بنجاح!";
-  document.getElementById("donorForm").reset();
-});
-
-// ✅ البحث عن متبرع
-document.getElementById("searchForm").addEventListener("submit", async (e) => {
-  e.preventDefault();
-
-  const name = document.getElementById("searchName").value.trim().toLowerCase();
-  const hp = document.getElementById("searchHp").value.trim().toLowerCase();
-  const address = document.getElementById("searchAddress").value.trim().toLowerCase();
-
-  const donorsRef = ref(db, "donors");
-  const snapshot = await get(donorsRef);
-
-  const resultsDiv = document.getElementById("searchResults");
-  resultsDiv.innerHTML = "";
-
-  if (snapshot.exists()) {
-    const donors = snapshot.val();
-    let found = false;
-
-    Object.values(donors).forEach(donor => {
-      if (
-        (!name || donor.name.toLowerCase().includes(name)) &&
-        (!hp || donor.hp.toLowerCase().includes(hp)) &&
-        (!address || donor.address.toLowerCase().includes(address))
-      ) {
-        found = true;
-        const div = document.createElement("div");
-        div.classList.add("donor-card");
-        div.innerHTML = `
-          <p><strong>الاسم:</strong> ${donor.name}</p>
-          <p><strong>العمر:</strong> ${donor.age}</p>
-          <p><strong>العنوان:</strong> ${donor.address}</p>
-          <p><strong>الهاتف:</strong> ${donor.phone}</p>
-          <p><strong>الأمراض:</strong> ${donor.diseases}</p>
-          <p><strong>الفصيلة:</strong> ${donor.hp}</p>
-          <p><strong>آخر تبرع:</strong> ${donor.lastDonation}</p>
-        `;
-        resultsDiv.appendChild(div);
-      }
-    });
-
-    if (!found) {
-      resultsDiv.innerHTML = "<p style='color:red;'>❌ لا توجد نتائج مطابقة</p>";
+    try {
+      const donorRef = push(ref(db, "donors"));
+      await set(donorRef, donorData);
+      alert("✅ تم حفظ بيانات المتبرع بنجاح!");
+      donorForm.reset();
+    } catch (error) {
+      console.error("❌ خطأ أثناء الحفظ:", error);
     }
-  } else {
-    resultsDiv.innerHTML = "<p style='color:red;'>❌ قاعدة البيانات فارغة</p>";
-  }
-});
+  });
+}
+
+// ----------------------------
+// البحث عن متبرع
+// ----------------------------
+const searchForm = document.getElementById("searchForm");
+const searchResults = document.getElementById("searchResults");
+
+if (searchForm) {
+  searchForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const searchName = document.getElementById("searchName").value.toLowerCase();
+    const searchHP = document.getElementById("searchHP").value.toLowerCase();
+    const searchAddress = document.getElementById("searchAddress").value.toLowerCase();
+
+    try {
+      const snapshot = await get(child(ref(db), "donors"));
+      searchResults.innerHTML = "";
+
+      if (snapshot.exists()) {
+        const donors = snapshot.val();
+        let found = false;
+
+        Object.values(donors).forEach((donor) => {
+          if (
+            (searchName && donor.name.toLowerCase().includes(searchName)) ||
+            (searchHP && donor.hp.toLowerCase().includes(searchHP)) ||
+            (searchAddress && donor.address.toLowerCase().includes(searchAddress))
+          ) {
+            found = true;
+            const div = document.createElement("div");
+            div.className = "donor-card";
+            div.innerHTML = `
+              <h3>💉 ${donor.name}</h3>
+              <p>العمر: ${donor.age}</p>
+              <p>العنوان: ${donor.address}</p>
+              <p>📞 ${donor.phone}</p>
+              <p>الأمراض المزمنة: ${donor.diseases || "لا يوجد"}</p>
+              <p>فصيلة الدم: ${donor.hp}</p>
+              <p>آخر تبرع: ${donor.lastDonation}</p>
+            `;
+            searchResults.appendChild(div);
+          }
+        });
+
+        if (!found) {
+          searchResults.innerHTML = "<p>❌ لا توجد نتائج مطابقة</p>";
+        }
+      } else {
+        searchResults.innerHTML = "<p>❌ لا توجد بيانات متبرعين</p>";
+      }
+    } catch (error) {
+      console.error("❌ خطأ أثناء البحث:", error);
+    }
+  });
+}
